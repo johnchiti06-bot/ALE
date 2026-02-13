@@ -4,9 +4,13 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, MapPin, Bike, Car } from 'lucide-react';
 import { useFoodOrderSession } from '../contexts/FoodOrderSession';
 import { useFoodPayment } from '../contexts/FoodPaymentContext';
+import { useFirebaseRide } from '../hooks/useFirebaseRide';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 export function FoodConfirmOrder() {
   const navigate = useNavigate();
+  const { profile } = useUserProfile();
+  const { createRide } = useFirebaseRide();
   const {
     cartItems,
     getCurrentLocationFoods,
@@ -41,25 +45,36 @@ export function FoodConfirmOrder() {
     setIsConfirming(true);
 
     try {
-      const deliveryOrderId = `delivery_${Date.now()}`;
+      console.log('[FoodConfirmOrder] Creating food delivery request in rides collection');
 
-      const orderData = {
-        id: deliveryOrderId,
-        foods: currentLocationFoods,
-        foodSubtotal,
-        deliveryMode: selectedDeliveryMode,
+      const foodRequest = {
+        type: 'food' as const,
+        deliveryType: selectedDeliveryMode as 'motorbike' | 'car' | 'bicycle',
+        items: currentLocationFoods,
+        subtotal: foodSubtotal,
         deliveryFee,
         total,
-        deliveryLocation,
-        status: 'pending',
-        createdAt: new Date().toISOString()
+        pickupLocation: currentLocationFoods[0]?.storeName || 'Restaurant',
+        dropoffLocation: deliveryLocation || 'Current Location',
+        destination: deliveryLocation || 'Current Location',
+        pickup: currentLocationFoods[0]?.storeName || 'Restaurant',
+        stops: [],
+        carType: selectedDeliveryMode || 'motorbike',
+        price: total,
+        status: 'pending' as const,
+        userId: profile?.id || 'user123',
+        userName: profile?.name || 'Unknown User'
       };
 
-      localStorage.setItem(`delivery_order_${deliveryOrderId}`, JSON.stringify(orderData));
+      const rideId = await createRide(foodRequest as any);
+      console.log('[FoodConfirmOrder] Food request created with ID:', rideId);
+
+      localStorage.setItem('currentRideId', rideId);
 
       setIsConfirming(false);
-      navigate('/food-waiting-driver', { state: { deliveryOrderId } });
+      navigate('/waiting-for-driver');
     } catch (error) {
+      console.error('[FoodConfirmOrder] Error confirming order:', error);
       setIsConfirming(false);
       alert('Error confirming order. Please try again.');
     }

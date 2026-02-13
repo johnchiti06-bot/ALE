@@ -22,9 +22,10 @@ import { FoodDelivery } from './pages/FoodDelivery';
 import { FoodPayment } from './pages/FoodPayment';
 import { FoodAddCard } from './pages/FoodAddCard';
 import { FoodMobileMoneyPage } from './pages/FoodMobileMoneyPage';
+import { FoodConfirmOrder } from './pages/FoodConfirmOrder';
 import { MessageProvider } from './contexts/MessageContext';
 import { RideProvider } from './contexts/RideContext';
-import { FoodOrderSessionProvider } from './contexts/FoodOrderSession';
+import { FoodOrderSessionProvider, useFoodOrderSession } from './contexts/FoodOrderSession';
 import { FoodPaymentProvider } from './contexts/FoodPaymentContext';
 import { CurrentRideBar } from './components/CurrentRideBar';
 import { WaitingForDriverBar } from './components/WaitingForDriverBar';
@@ -47,6 +48,7 @@ function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile } = useUserProfile();
+  const { clearCart } = useFoodOrderSession();
 
   const [appState, setAppState] = useState<AppState>({
     selectedDestination: '',
@@ -228,6 +230,13 @@ function AppContent() {
       setShowRatingModal(false);
       setAppState(prev => ({ ...prev, currentRideId: null }));
       setRideStatus(null);
+
+      // Clear food cart if it was a food delivery
+      if (currentRide?.type === 'food') {
+        console.log('[App] Clearing food cart after rating submission');
+        clearCart();
+      }
+
       navigate('/');
     } catch (error) {
       console.error('Error submitting rating:', error);
@@ -347,6 +356,10 @@ function AppContent() {
               element={<FoodMobileMoneyPage />}
             />
             <Route
+              path="/food-confirm-order"
+              element={<FoodConfirmOrder />}
+            />
+            <Route
               path="/select-ride"
               element={
                 isRideActive() ? (
@@ -419,6 +432,7 @@ function AppContent() {
               driverName={driverInfo.name}
               driverPhoto={driverInfo.photo}
               onSubmitRating={handleSubmitRating}
+              requestType={(currentRide as any)?.type || 'ride'}
             />
           )}
         </div>

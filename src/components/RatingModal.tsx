@@ -8,6 +8,7 @@ interface RatingModalProps {
   driverName: string;
   driverPhoto: string;
   onSubmitRating: (rating: number, feedback: string) => void;
+  requestType?: 'ride' | 'food';
 }
 
 export const RatingModal: React.FC<RatingModalProps> = ({
@@ -15,7 +16,8 @@ export const RatingModal: React.FC<RatingModalProps> = ({
   onClose,
   driverName,
   driverPhoto,
-  onSubmitRating
+  onSubmitRating,
+  requestType = 'ride'
 }) => {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -73,8 +75,15 @@ export const RatingModal: React.FC<RatingModalProps> = ({
                 >
                   {driverPhoto}
                 </motion.div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-3">Rate your driver</h2>
-                <p className="text-lg text-gray-600">How was your experience with {driverName}?</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                  {requestType === 'food' ? 'Rate your delivery driver' : 'Rate your driver'}
+                </h2>
+                <p className="text-lg text-gray-600">
+                  {requestType === 'food'
+                    ? `How do you rate the delivery guy ${driverName}?`
+                    : `How was your experience with ${driverName}?`
+                  }
+                </p>
               </div>
 
               <div className="flex justify-center space-x-2 mb-6">

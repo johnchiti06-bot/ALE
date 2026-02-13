@@ -8,19 +8,34 @@ export const useFirebaseRide = (rideId?: string | null) => {
   const [isAccepted, setIsAccepted] = useState(false);
 
   useEffect(() => {
-    if (!rideId) return;
+    if (!rideId) {
+      console.log('[useFirebaseRide] No rideId provided, skipping listener setup');
+      return;
+    }
+
+    console.log('[useFirebaseRide] Setting up listener for rideId:', rideId);
 
     const unsubscribe = firebaseService.listenToRideRequest(rideId, (ride) => {
+      console.log('[useFirebaseRide] Ride data received:', {
+        rideId: ride?.id,
+        status: ride?.status,
+        type: (ride as any)?.type,
+        driverId: ride?.driverId,
+        hasRide: !!ride
+      });
+
       if (ride) {
         setCurrentRide(ride);
 
         if (ride.driverId && ride.status === 'accepted') {
+          console.log('[useFirebaseRide] Ride accepted! Setting isAccepted to true');
           setIsAccepted(true);
         }
       }
     });
 
     return () => {
+      console.log('[useFirebaseRide] Cleaning up listener for rideId:', rideId);
       unsubscribe();
     };
   }, [rideId]);

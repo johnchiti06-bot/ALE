@@ -52,10 +52,30 @@ export const WaitingForDriver: React.FC<WaitingForDriverProps> = ({
   const { profile } = useUserProfile();
 
   const isFood = requestType === 'food';
-  
+
   // Recalculate price to ensure consistency
   const priceCalculation = calculatePriceWithStops(pickup, destination, stops);
   const finalPrice = getCarTypePrice(priceCalculation.totalPrice, carType);
+
+  console.log('[WaitingForDriver] Component mounted with:', {
+    currentRideId,
+    requestType,
+    isFood,
+    destination,
+    pickup
+  });
+
+  // Monitor current ride changes
+  useEffect(() => {
+    if (currentRide) {
+      console.log('[WaitingForDriver] Current ride updated:', {
+        rideId: currentRide.id,
+        status: currentRide.status,
+        type: (currentRide as any).type,
+        driverId: currentRide.driverId
+      });
+    }
+  }, [currentRide]);
 
   // NOTE: Removed the auto-create useEffect that ran on mount.
   // The ConfirmOrder page is responsible for creating the initial ride request.
@@ -79,8 +99,11 @@ export const WaitingForDriver: React.FC<WaitingForDriverProps> = ({
   }, [isScanning]);
 
   useEffect(() => {
+    console.log('[WaitingForDriver] isAccepted changed:', isAccepted);
     if (isAccepted) {
+      console.log('[WaitingForDriver] Driver accepted! Navigating to driver-coming in 2 seconds...');
       setTimeout(() => {
+        console.log('[WaitingForDriver] Calling onDriverFound()');
         onDriverFound();
       }, 2000);
     }
