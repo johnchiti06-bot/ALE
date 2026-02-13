@@ -15,7 +15,7 @@ export const useFirebaseRide = (rideId?: string | null) => {
 
     console.log('[useFirebaseRide] Setting up listener for rideId:', rideId);
 
-    const unsubscribe = firebaseService.listenToRide(rideId, (ride) => {
+    const unsubscribe = firebaseService.listenToRiderequest(rideId, (ride) => {
       console.log('[useFirebaseRide] Ride data received:', {
         rideId: ride?.id,
         status: ride?.status,
