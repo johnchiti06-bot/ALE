@@ -93,7 +93,10 @@ export const ConfirmOrder: React.FC<ConfirmOrderProps> = ({
           userName: profile?.name || 'Unknown User'
         };
 
+        console.log('[ConfirmOrder] Creating food request:', foodRequest);
         const requestId = await createRide(foodRequest as any);
+        console.log('[ConfirmOrder] Food request created with ID:', requestId);
+        console.log('[ConfirmOrder] Storing in localStorage as currentRideId:', requestId);
         localStorage.setItem('currentRideId', requestId);
 
         setIsLoading(false);
@@ -119,7 +122,11 @@ export const ConfirmOrder: React.FC<ConfirmOrderProps> = ({
           userName: profile?.name || 'Unknown User'
         };
 
+        console.log('[ConfirmOrder] Creating ride request:', rideRequest);
         const rideId = await createRide(rideRequest);
+        console.log('[ConfirmOrder] Ride request created with ID:', rideId);
+        console.log('[ConfirmOrder] Storing in localStorage as currentRideId:', rideId);
+        localStorage.setItem('currentRideId', rideId);
 
         if (propOnRideCreated) {
           propOnRideCreated(rideId);
@@ -128,6 +135,7 @@ export const ConfirmOrder: React.FC<ConfirmOrderProps> = ({
         if (propOnRideConfirmed) {
           propOnRideConfirmed();
         } else {
+          console.log('[ConfirmOrder] Navigating to /waiting-for-driver');
           navigate('/waiting-for-driver');
         }
       }

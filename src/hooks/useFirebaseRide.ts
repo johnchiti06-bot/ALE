@@ -43,11 +43,13 @@ export const useFirebaseRide = (rideId?: string | null) => {
   const createRide = useCallback(async (rideData: Omit<RideRequest, 'id' | 'timestamp'>) => {
     setIsLoading(true);
     try {
+      console.log('[useFirebaseRide] Creating ride with data:', rideData);
       const rideId = await firebaseService.createRideRequest(rideData);
+      console.log('[useFirebaseRide] Ride created successfully with ID:', rideId);
 
       return rideId;
     } catch (error) {
-      console.error('Error creating ride:', error);
+      console.error('[useFirebaseRide] Error creating ride:', error);
       throw error;
     } finally {
       setIsLoading(false);

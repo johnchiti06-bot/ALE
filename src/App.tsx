@@ -68,18 +68,18 @@ function AppContent() {
   useEffect(() => {
     const rideId = localStorage.getItem('currentRideId');
     if (rideId) {
+      console.log('[App] Restoring currentRideId from localStorage:', rideId);
       setAppState(prev => ({ ...prev, currentRideId: rideId }));
-      navigate('/driver-coming');
     }
   }, []);
 
   useEffect(() => {
     const handleOnline = () => {
-      console.log('Back online, syncing ride state...');
+      console.log('[App] Back online, syncing ride state...');
       const rideId = localStorage.getItem('currentRideId');
       if (rideId) {
+        console.log('[App] Restored currentRideId on reconnect:', rideId);
         setAppState(prev => ({ ...prev, currentRideId: rideId }));
-        navigate('/driver-coming');
       }
     };
 
@@ -95,6 +95,17 @@ function AppContent() {
       window.removeEventListener('offline', handleOffline);
     };
   }, [navigate]);
+
+  useEffect(() => {
+    console.log('[App] Location changed to:', location.pathname);
+    if (location.pathname === '/waiting-for-driver') {
+      const rideId = localStorage.getItem('currentRideId');
+      if (rideId && rideId !== appState.currentRideId) {
+        console.log('[App] Syncing currentRideId from localStorage:', rideId);
+        setAppState(prev => ({ ...prev, currentRideId: rideId }));
+      }
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!appState.currentRideId) return;
